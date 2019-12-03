@@ -6,7 +6,7 @@ module.exports = {
         Club.find()
             .then((clubs) => {
                 response.status(200)
-                    .json({ message: 'Clubs Fetched!', clubs });
+                    .json({ success: true, message: 'Clubs Fetched!', clubs });
             })
             .catch((error) => {
                 next(error);
@@ -25,7 +25,7 @@ module.exports = {
                 }
 
                 response.status(200)
-                    .json({ message: 'Club Fetched!', club })
+                    .json({ success: true, message: 'Club Fetched!', club })
             })
             .catch((error) => {
                 next(error);
@@ -56,7 +56,7 @@ module.exports = {
         Club.create(creationObject)
             .then((club) => {
                 response.status(201)
-                    .json({ message: 'Club Created!', club });
+                    .json({ success: true, message: 'Club Created!', club });
             })
             .catch((error) => {
                 next(error);
@@ -99,7 +99,7 @@ module.exports = {
             })
             .then((club) => {
                 response.status(200)
-                    .json({ message: 'Club Updated!', club })
+                    .json({ success: true, message: 'Club Updated!', club })
             })
             .catch((error) => {
                 next(error)
@@ -121,7 +121,7 @@ module.exports = {
             })
             .then(() => {
                 response.status(200)
-                    .json({ message: 'Club Deleted!', clubId });
+                    .json({ success: true, message: 'Club Deleted!', clubId });
             })
             .catch((error) => {
                 next(error);

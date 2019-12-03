@@ -11,8 +11,8 @@ module.exports = {
         const errors = validationResult(request);
         if (!errors.isEmpty()) {
             return response.status(422).json({
-                message: 'Validation failed, entered data is incorrect',
-                errors: errors.array()
+                success: false,
+                message: errors.array()[0]['msg']
             });
         }
 
@@ -26,7 +26,11 @@ module.exports = {
         })
             .then((user) => {
                 response.status(201)
-                    .json({ message: 'User Registered!', userId: user._id });
+                    .json({
+                        success: true,
+                        message: 'User Registered!',
+                        user: { userId: user._id, username: user.username }
+                    });
             })
             .catch((error) => {
                 next(error);
@@ -40,12 +44,12 @@ module.exports = {
             .then((user) => {
                 if (!user) {
                     return response.status(404)
-                        .json({ message: 'Invalid Credentials!' });
+                        .json({ success: false, message: 'Invalid Credentials!' });
                 }
 
                 if (!user.authenticate(password)) {
                     return response.status(400)
-                        .json({ message: 'Invalid Credentials!' });
+                        .json({ success: false, message: 'Invalid Credentials!' });
                 }
 
                 const token = jwt.sign({
@@ -55,7 +59,12 @@ module.exports = {
                 }, 'verysecuresecret', { expiresIn: '1h' });
 
                 response.status(200)
-                    .json({ message: 'User Logged In!', token, userId: user._id });
+                    .json({
+                        success: true,
+                        message: 'User Logged In!',
+                        token,
+                        user: { userId: user._id, username: user.username }
+                    });
             })
             .catch((error) => {
                 next(error);
@@ -68,7 +77,7 @@ module.exports = {
         Tournament.find({}).where('playersRegistered').in(userId)
             .then((tournaments) => {
                 response.status(200)
-                    .json({ message: 'Tournaments Fetched!', tournaments });
+                    .json({ success: true, message: 'Tournaments Fetched!', tournaments });
             })
             .catch((error) => {
                 next(error);

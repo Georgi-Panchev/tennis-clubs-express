@@ -3,8 +3,9 @@ const tournamentController = require('../controllers/tournament');
 const auth = require('../middleware/auth');
 const validator = require('../util/validator');
 
-router.get('/read', tournamentController.read);
-router.get('/read/:tournamentId', auth.isAuth, tournamentController.readById);
+router.get('/all', tournamentController.read);
+router.get('/all/:clubId', tournamentController.readByClub);
+router.get('/details/:tournamentId', auth.isAuth, tournamentController.readById);
 router.post('/create/:clubId', validator.createTournament, auth.isAdmin, tournamentController.create);
 router.put('/update/:tournamentId', validator.createTournament, auth.isAdmin, tournamentController.update);
 router.delete('/delete/:tournamentId', auth.isAdmin, tournamentController.delete);

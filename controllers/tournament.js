@@ -8,7 +8,20 @@ module.exports = {
         Tournament.find()
             .then((tournaments) => {
                 response.status(200)
-                    .json({ message: 'Tournaments Fetched!', tournaments });
+                    .json({ success: true, message: 'Tournaments Fetched!', tournaments });
+            })
+            .catch((error) => {
+                next(error);
+            });
+    },
+
+    readByClub: (request, response, next) => {
+        const clubId = request.params.clubId;
+
+        Club.findById(clubId).populate('tournaments')
+            .then((club) => {
+                response.status(200)
+                    .json({ success: true, message: 'Tournaments Fetched!', tournaments: club.tournaments });
             })
             .catch((error) => {
                 next(error);
@@ -27,7 +40,7 @@ module.exports = {
                 }
 
                 response.status(200)
-                    .json({ message: 'Tournament Fetched!', tournament })
+                    .json({ success: true, message: 'Tournament Fetched!', tournament })
             })
             .catch((error) => {
                 next(error);
@@ -72,7 +85,7 @@ module.exports = {
             })
             .then(([ tournament, club ]) => {
                 response.status(201)
-                    .json({ message: 'Tournament Created!', tournament });
+                    .json({ success: true, message: 'Tournament Created!', tournament });
             })
             .catch((error) => {
                 next(error);
@@ -109,7 +122,7 @@ module.exports = {
             })
             .then((tournament) => {
                 response.status(200)
-                    .json({ message: 'Club Updated!', tournament })
+                    .json({ success: true, message: 'Club Updated!', tournament })
             })
             .catch((error) => {
                 next(error);
@@ -121,7 +134,7 @@ module.exports = {
         const tournamentId = request.params.tournamentId;
 
         Promise.all([ Club.findById(clubId), Tournament.findById(tournamentId) ])
-            .then(([ club, tournament]) => {
+            .then(([ club, tournament ]) => {
                 if (!club) {
                     const error = new Error('Club Not Found!');
                     error.statusCode = 404;
@@ -139,7 +152,7 @@ module.exports = {
             })
             .then(() => {
                 response.status(200)
-                    .json({ message: 'Tournament Deleted!', tournamentId });
+                    .json({ success: true, message: 'Tournament Deleted!', tournamentId });
             })
             .catch((error) => {
                 next(error);
@@ -154,11 +167,17 @@ module.exports = {
             .then(([ user, tournament ]) => {
                 if (!user) {
                     return response.status(404)
-                        .json({ message: 'Invalid Credentials!' });
+                        .json({ success: false, message: 'Invalid Credentials!' });
                 }
 
                 if (!tournament) {
                     const error = new Error('Tournament Not Found!');
+                    error.statusCode = 404;
+                    throw error;
+                }
+
+                if (user.tournamentsAttended.includes(tournamentId) || tournament.playersRegistered.includes(userId)) {
+                    const error = new Error('Tournament Already Attended!');
                     error.statusCode = 404;
                     throw error;
                 }
@@ -170,7 +189,7 @@ module.exports = {
             })
             .then(() => {
                 response.status(200)
-                    .json({ message: 'Tournament Attended!', tournamentId });
+                    .json({ success: true, message: 'Tournament Attended!', tournamentId });
             })
             .catch((error) => {
                 next(error);
@@ -185,11 +204,17 @@ module.exports = {
             .then(([ tournament, user ]) => {
                 if (!user) {
                     return response.status(404)
-                        .json({ message: 'Invalid Credentials!' });
+                        .json({ success: false, message: 'Invalid Credentials!' });
                 }
 
                 if (!tournament) {
                     const error = new Error('Tournament Not Found!');
+                    error.statusCode = 404;
+                    throw error;
+                }
+
+                if (!user.tournamentsAttended.includes(tournamentId) || !tournament.playersRegistered.includes(userId)) {
+                    const error = new Error('Tournament Not Attended!');
                     error.statusCode = 404;
                     throw error;
                 }
@@ -200,7 +225,7 @@ module.exports = {
             })
             .then(() => {
                 response.status(200)
-                    .json({ message: 'Tournament Left!', tournamentId });
+                    .json({ success: true, message: 'Tournament Left!', tournamentId });
             })
             .catch((error) => {
                 next(error);
