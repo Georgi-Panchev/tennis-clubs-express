@@ -122,7 +122,7 @@ module.exports = {
             })
             .then((tournament) => {
                 response.status(200)
-                    .json({ success: true, message: 'Club Updated!', tournament })
+                    .json({ success: true, message: 'Tournament Updated!', tournament })
             })
             .catch((error) => {
                 next(error);
@@ -130,25 +130,29 @@ module.exports = {
     },
 
     delete: (request, response, next) => {
-        const clubId = request.params.clubId;
         const tournamentId = request.params.tournamentId;
+        const userId = request.userId;
 
-        Promise.all([ Club.findById(clubId), Tournament.findById(tournamentId) ])
-            .then(([ club, tournament ]) => {
-                if (!club) {
-                    const error = new Error('Club Not Found!');
-                    error.statusCode = 404;
-                    throw error;
-                }
-
+        Tournament.findById(tournamentId)
+            .then((tournament) => {
                 if (!tournament) {
                     const error = new Error('Tournament Not Found!');
                     error.statusCode = 404;
                     throw error;
                 }
 
+                return Promise.all([
+                    Club.findById(tournament.club),
+                    Tournament.findByIdAndDelete(tournamentId),
+                    User.updateMany(
+                        { tournamentsAttended: { $in: tournamentId } },
+                        { $pull: { tournamentsAttended: tournamentId } }
+                    )
+                ]);
+            })
+            .then(([ club, tournament, users ]) => {
                 club.tournaments.pull(tournamentId);
-                return Promise.all([ club.save(), Tournament.findByIdAndDelete(tournamentId) ]);
+                return club.save();
             })
             .then(() => {
                 response.status(200)

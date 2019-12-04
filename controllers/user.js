@@ -29,7 +29,7 @@ module.exports = {
                     .json({
                         success: true,
                         message: 'User Registered!',
-                        user: { userId: user._id, username: user.username }
+                        user: { userId: user._id, username: user.username, roles: user.roles }
                     });
             })
             .catch((error) => {
@@ -63,7 +63,7 @@ module.exports = {
                         success: true,
                         message: 'User Logged In!',
                         token,
-                        user: { userId: user._id, username: user.username }
+                        user: { userId: user._id, username: user.username, roles: user.roles }
                     });
             })
             .catch((error) => {

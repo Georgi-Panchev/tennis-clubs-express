@@ -1,4 +1,6 @@
 const Club = require('../models/Club');
+const User = require('../models/User');
+const Tournament = require('../models/Tournament');
 const { validationResult } = require('express-validator');
 
 module.exports = {
@@ -109,12 +111,23 @@ module.exports = {
     delete: (request, response, next) => {
         const clubId = request.params.clubId;
 
-        Club.findById(clubId)
-            .then((club) => {
+        Promise.all([ Club.findById(clubId), Tournament.find({ club: clubId }) ])
+            .then(([ club, tournaments ]) => {
                 if (!club) {
                     const error = new Error('Club Not Found!');
                     error.statusCode = 404;
                     throw error;
+                }
+
+                if (tournaments.length > 0) {
+                    return Promise.all([
+                        Club.findByIdAndDelete(clubId),
+                        Tournament.deleteMany({ club: clubId }),
+                        User.updateMany(
+                            { tournamentsAttended: { $in: [ ...club.tournaments ] } },
+                            { $pull: { tournamentsAttended: { $in: [ ...club.tournaments ] } } }
+                        )
+                    ]);
                 }
 
                 return Club.findByIdAndDelete(clubId);
