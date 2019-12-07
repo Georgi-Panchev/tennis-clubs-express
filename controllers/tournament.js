@@ -5,7 +5,7 @@ const { validationResult } = require('express-validator');
 
 module.exports = {
     read: (request, response, next) => {
-        Tournament.find()
+        Tournament.find().populate('club')
             .then((tournaments) => {
                 response.status(200)
                     .json({ success: true, message: 'Tournaments Fetched!', tournaments });
@@ -21,7 +21,12 @@ module.exports = {
         Club.findById(clubId).populate('tournaments')
             .then((club) => {
                 response.status(200)
-                    .json({ success: true, message: 'Tournaments Fetched!', tournaments: club.tournaments });
+                    .json({
+                        success: true,
+                        message: 'Tournaments Fetched!',
+                        tournaments: club.tournaments,
+                        club: club
+                    });
             })
             .catch((error) => {
                 next(error);
@@ -31,7 +36,7 @@ module.exports = {
     readById: (request, response, next) => {
         const tournamentId = request.params.tournamentId;
 
-        Tournament.findById(tournamentId)
+        Tournament.findById(tournamentId).populate('club')
             .then((tournament) => {
                 if (!tournament) {
                     const error = new Error('Tournament Not Found!');

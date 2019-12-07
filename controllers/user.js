@@ -56,7 +56,7 @@ module.exports = {
                     username: username,
                     userId: user._id,
                     roles: user.roles
-                }, 'verysecuresecret', { expiresIn: '1h' });
+                }, 'verysecuresecret');
 
                 response.status(200)
                     .json({
@@ -74,7 +74,9 @@ module.exports = {
     profile: (request, response, next) => {
         let userId = request.userId;
 
-        Tournament.find({}).where('playersRegistered').in(userId)
+        Tournament.find({})
+            .where('playersRegistered').in(userId)
+            .populate('club')
             .then((tournaments) => {
                 response.status(200)
                     .json({ success: true, message: 'Tournaments Fetched!', tournaments });
