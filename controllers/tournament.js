@@ -36,7 +36,8 @@ module.exports = {
     readById: (request, response, next) => {
         const tournamentId = request.params.tournamentId;
 
-        Tournament.findById(tournamentId).populate('club')
+        Tournament.findById(tournamentId)
+            .populate('club').populate('playersRegistered')
             .then((tournament) => {
                 if (!tournament) {
                     const error = new Error('Tournament Not Found!');
