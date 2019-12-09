@@ -4,7 +4,7 @@ const User = require('../models/User');
 mongoose.Promise = global.Promise;
 
 module.exports = () => {
-    mongoose.connect('mongodb://localhost:27017/tennis-clubs-db', {
+    mongoose.connect('mongodb://localhost:27017/tennis-clubs', {
         useNewUrlParser: true
     });
     const db = mongoose.connection;
