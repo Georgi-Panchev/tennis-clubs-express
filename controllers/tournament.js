@@ -195,11 +195,11 @@ module.exports = {
                 if (!user.tournamentsAttended.includes(tournamentId)) user.tournamentsAttended.push(tournamentId);
                 if (!tournament.playersRegistered.includes(userId)) tournament.playersRegistered.push(userId);
 
-                return Promise.all([ user.save(), tournament.save() ])
+                return Promise.all([ tournament.save(), user.save() ])
             })
-            .then(() => {
+            .then(([ tournament, user ]) => {
                 response.status(200)
-                    .json({ success: true, message: 'Tournament Attended!', tournamentId });
+                    .json({ success: true, message: 'Tournament Attended!', tournament, user });
             })
             .catch((error) => {
                 next(error);
@@ -233,9 +233,9 @@ module.exports = {
                 user.tournamentsAttended.pull(tournamentId);
                 return Promise.all([ tournament.save(), user.save() ])
             })
-            .then(() => {
+            .then(([ tournament, user ]) => {
                 response.status(200)
-                    .json({ success: true, message: 'Tournament Left!', tournamentId });
+                    .json({ success: true, message: 'Tournament Left!', tournament, user });
             })
             .catch((error) => {
                 next(error);
