@@ -21,7 +21,7 @@ module.exports = {
         Club.findById(clubId).populate('tournaments')
             .then((club) => {
                 if (!club) {
-                    const error = new Error('Tournament Not Found!');
+                    const error = new Error('Club Not Found!');
                     error.statusCode = 404;
                     throw error;
                 }
